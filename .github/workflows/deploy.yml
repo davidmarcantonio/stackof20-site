@@ -1,65 +1,28 @@
-name: Sync release and deploy site
+name: Deploy maintenance site
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 concurrency:
   group: stackof20-site
   cancel-in-progress: false
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      deploy: ${{ steps.sync.outputs.deploy }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: main
-      - name: Sync verified public release
-        id: sync
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          python3 scripts/sync_release.py --target site
-          git add release.json '*.html' updates/v1/appcast.xml
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Sync verified stackof20 release'
-            git push
-            echo 'deploy=true' >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" != schedule ]; then
-            echo 'deploy=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'deploy=false' >> "$GITHUB_OUTPUT"
-          fi
-      - name: Build static site
-        if: steps.sync.outputs.deploy == 'true'
-        run: |
-          mkdir dist
-          cp *.html *.js styles.css release.json CNAME dist/
-          cp -R assets updates dist/
-      - uses: actions/configure-pages@v5
-        if: steps.sync.outputs.deploy == 'true'
-      - uses: actions/upload-pages-artifact@v4
-        if: steps.sync.outputs.deploy == 'true'
-        with:
-          path: dist
   deploy:
-    needs: build
-    if: needs.build.outputs.deploy == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v6
+      - run: |
+          mkdir dist
+          cp *.html styles.css CNAME dist/
+          cp -R assets dist/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
       - uses: actions/deploy-pages@v4
         id: deployment
