@@ -1,11 +1,19 @@
 # stackof20 website
 
-Static website prepared for https://stackof20.com. GitHub Pages deploys the main branch root. The owner approved publication on October 21, 2026. GitHub Pages publishes changes merged into main.
+Static product site at https://stackof20.com, hosted with GitHub Pages. The app source is in the separate private davidmarcantonio/stackof20 repository. This repository contains public website content and release-sync tooling only.
 
-Edit index.html, privacy.html and support.html. Assets and the Hanken Grotesk font are served locally; the font license is assets/fonts/OFL.txt. The approved cream/purple design and 06B mark are retained. stackof20 is a product of BACS Tech, Inc., created by David Marcantonio. Support/privacy contact: hello@stackof20.com.
+## Updating the app and site
 
-The owner purchased stackof20.com and verified it in GitHub. Verification reserves the Pages domain but does not configure hosting or HTTPS. CNAME selects stackof20.com. Porkbun web DNS points to GitHub Pages. HTTPS is enabled for the apex and www names. Preserve the email and GitHub verification DNS records.
+Build, sign and notarize on codey-box. Run the private app repository's scripts/prepare_distribution.py for the v1 channel. It emits a signed appcast, checksum-pinned cask and public release.json metadata. Publish the exact ZIP, appcast.xml, release.json and SHA256SUMS.txt on a stable release in stackof20/stackof20. Never upload source archives, Xcode archives, Keychain records or signing keys.
 
-The site has no analytics or tracking scripts. The approved native app screenshots use entirely fictional data and are served from assets/screenshots. Responsive WebP previews link to the full-resolution PNGs captured in compact native windows. The homepage and guide.html explain the current app behavior; support.html links to the guide. The website describes direct distribution: a full 14-day trial, then $5 USD once for v1, three personal Macs, and 30-day refunds. The public download and checkout remain unavailable pending release approval. Do not link to Test-mode checkout or development-signed builds. For local review, serve this directory with a loopback HTTP server. The current review copy is available at http://127.0.0.1:8767/ on the development Mac.
+The site workflow checks published stable releases every 15 minutes and on manual runs. It verifies the feed signature with the pinned public key and verifies the ZIP signature/checksum before accepting a new release. It updates the displayed version, build, download links, release-notes links and exact signed appcast, commits them here and deploys Pages. The tap has its own corresponding scheduled sync. These workflows need only their own repository's GitHub Actions token; no shared personal token or signing secret is used.
 
-October 21 commerce update: owner approved publishing the website copy. Public download and purchase links remain unavailable, and Lemon Squeezy stays in Test mode.
+For an immediate site refresh after a release, run the Sync release and deploy site workflow. Homebrew's Sync verified cask workflow can also be run immediately. Scheduled runs are subject to GitHub Actions scheduling delays.
+
+## Website edits and graphics
+
+Edit the HTML, styles.css and install.js on main. GitHub Actions builds only the public HTML/JS/CSS, assets, release.json, CNAME and updates directory into Pages. No analytics or third-party font requests are added.
+
+When UI changes, regenerate compact native screenshots using the private app's scripts/render_submission_screenshots.py. The captures use production views and fictional mail, without accessing real accounts, CloudKit or production licensing state. Review them and replace the responsive content-addressed image assets. Do not use invented UI mockups for product screenshots.
+
+Keep purchase, privacy and support copy aligned with the app: 14-day local trial, $5 USD once for v1, three personal Macs, no subscription, v1 updates included and refund requests within 30 days. Explain Lemon Squeezy checkout/licensing, Sparkle updates and GitHub hosting. Support: hello@stackof20.com.
