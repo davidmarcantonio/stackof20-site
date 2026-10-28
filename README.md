@@ -8,7 +8,7 @@ Build, sign and notarize on codey-box. Run the private app repository's scripts/
 
 The site workflow checks published stable releases every 15 minutes and on manual runs. It verifies the feed signature with the pinned public key and verifies the ZIP signature/checksum before accepting a new release. It updates the displayed version, build, download links, release-notes links and exact signed appcast, commits them here and deploys Pages. The tap has its own corresponding scheduled sync. These workflows need only their own repository's GitHub Actions token; no shared personal token or signing secret is used.
 
-For an immediate site refresh after a release, run the Sync release and deploy site workflow. Homebrew's Sync verified cask workflow can also be run immediately. Scheduled runs are subject to GitHub Actions scheduling delays.
+The private app repository also provides scripts/publish_distribution.py. After validation, its --publish mode publishes the binary release and immediately enables and dispatches both sync workflows using the existing authenticated GitHub CLI. This handles workflows that GitHub may disable after long repository inactivity. Use this publisher for normal app releases. For an immediate manual site refresh, run the Sync release and deploy site workflow. Homebrew's Sync verified cask workflow can also be run immediately. Scheduled runs are subject to GitHub Actions scheduling delays.
 
 ## Website edits and graphics
 
